@@ -150,4 +150,4 @@ VITE_APP_NAME=Attendance Management System
 
 ## 👨‍💻 Developer
 
-**Atharva Atre** - [@Atharv255](https://github.com/Atharv255)
+**Atharv Atre** - [@Atharv255](https://github.com/Atharv255)
