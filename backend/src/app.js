@@ -20,13 +20,33 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Allow all Vercel deployments and localhost
 app.use(
   cors({
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      'http://localhost:3000',
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+      
+      // List of allowed origins
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://attendance-managment-system-dusky.vercel.app',
+        process.env.FRONTEND_URL,
+      ];
+      
+      // Allow if origin is in the list
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+      
+      // Allow all Vercel preview deployments
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -46,9 +66,6 @@ app.use(
   })
 );
 
-// Ignore favicon requests
-app.get('/favicon.ico', (req, res) => res.status(204).end());
-
 // Health check route
 app.get('/', (req, res) => {
   res.json({
@@ -67,6 +84,9 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV,
   });
 });
+
+// Ignore favicon requests
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // API Routes
 app.use('/api/auth', authRoutes);
